@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Assignment Tracker</title>
+    <style>
+        body {
+            background-color: #0f0f0f;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            overflow-y: scroll;
+            height: 100vh;
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input, textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 5px 0;
+            border: none;
+            background-color: #1d1d1d;
+            color: white;
+        }
+        .list-group-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            background-color: #282828;
+            color: white;
+        }
+        .list-group-item.completed {
+            text-decoration: line-through;
+        }
+        .overdue {
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>College Assignment Tracker</h1>
+        <form id="assignmentForm">
+            <input type="text" id="title" placeholder="Title" required><br>
+            <select id="class" placeholder="Class"><option value="">Select Class</option><option value="Math">Math</option><option value="Science">Science</option><option value="History">History</option></select><br>
+            <input type="date" id="dueDate" required><br>
+            <select id="priority" placeholder="Priority"><option value="">Select Priority</option><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option></select><br>
+            <input type="text" id="status" placeholder="Status"><br>
+            <button type="submit">Add Assignment</button>
+        </form>
+        <div class="list-group">
+            <!-- List items will be dynamically added here -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const assignments = JSON.parse(localStorage.getItem('assignments')) || [];
+            renderAssignments(assignments);
+
+            document.getElementById('assignmentForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const title = document.getElementById('title').value;
+                const classVal = document.getElementById('class').value;
+                const dueDate = document.getElementById('dueDate').value;
+                const priority = document.getElementById('priority').value;
+                const status = document.getElementById('status').value;
+
+                if (!title || !classVal || !dueDate) return;
+
+                assignments.push({ title, class: classVal, dueDate, priority, status });
+                localStorage.setItem('assignments', JSON.stringify(assignments));
+                renderAssignments(assignments);
+                this.reset();
+            });
+
+            function renderAssignments(assignments) {
+                const listGroup = document.querySelector('.list-group');
+                listGroup.innerHTML = '';
+
+                assignments.forEach((assignment, index) => {
+                    const dueDate = new Date(assignment.dueDate);
+                    const now = new Date();
+
+                    let itemClass = '';
+                    if (dueDate < now && assignment.status !== 'Completed') {
+                        itemClass = 'overdue';
+                    } else if (assignment.status === 'Completed') {
+                        itemClass = 'completed';
+                    }
+
+                    listGroup.insertAdjacentHTML('beforeend', `
+                        <div class="list-group-item ${itemClass}" data-index="${index}">
+                            <span>${assignment.title} (${assignment.class})</span>
+                            <span>Due: ${new Date(assignment.dueDate).toLocaleDateString()}</span>
+                            <button onclick="deleteAssignment(${index})">Delete</button>
+                        </div>
+                    `);
+                });
+            }
+
+            function deleteAssignment(index) {
+                assignments.splice(index, 1);
+                localStorage.setItem('assignments', JSON.stringify(assignments));
+                renderAssignments(assignments);
+            }
+        });
+    </script>
+</body>
+</html>

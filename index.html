@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClearDesk — Tools Built for Real Work</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f0f; color: #f0f0f0; }
+
+    nav {
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #222;
+    }
+    nav .logo { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+    nav .logo span { color: #6c63ff; }
+    nav a { color: #aaa; text-decoration: none; font-size: 14px; margin-left: 24px; }
+    nav a:hover { color: #fff; }
+
+    .hero {
+      text-align: center;
+      padding: 100px 20px 80px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .hero h1 { font-size: 48px; font-weight: 800; line-height: 1.15; margin-bottom: 20px; }
+    .hero h1 span { color: #6c63ff; }
+    .hero p { font-size: 18px; color: #aaa; line-height: 1.7; margin-bottom: 36px; }
+    .btn {
+      display: inline-block;
+      background: #6c63ff;
+      color: #fff;
+      padding: 14px 32px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: #5a52d5; }
+
+    .features {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      flex-wrap: wrap;
+      padding: 60px 40px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .feature {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 12px;
+      padding: 28px 24px;
+      width: 220px;
+      text-align: center;
+    }
+    .feature .icon { font-size: 32px; margin-bottom: 14px; }
+    .feature h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .feature p { font-size: 14px; color: #888; line-height: 1.6; }
+
+    .perks {
+      text-align: center;
+      padding: 20px 40px 60px;
+      border-top: 1px solid #1a1a1a;
+    }
+    .perks h2 { font-size: 28px; font-weight: 800; margin-bottom: 32px; }
+    .perk-list {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      flex-wrap: wrap;
+    }
+    .perk { font-size: 15px; color: #aaa; }
+    .perk span { color: #6c63ff; font-weight: 700; display: block; font-size: 24px; margin-bottom: 6px; }
+
+    .privacy {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 60px 40px;
+      border-top: 1px solid #222;
+    }
+    .privacy h2 { font-size: 24px; font-weight: 700; margin-bottom: 20px; color: #ccc; }
+    .privacy h3 { font-size: 16px; font-weight: 600; margin: 20px 0 8px; color: #bbb; }
+    .privacy p, .privacy li { font-size: 14px; color: #888; line-height: 1.8; }
+    .privacy ul { padding-left: 20px; }
+
+    footer {
+      text-align: center;
+      padding: 30px;
+      color: #555;
+      font-size: 13px;
+      border-top: 1px solid #1a1a1a;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="logo">Clear<span>Desk</span></div>
+    <div>
+      <a href="store.html">Store</a>
+      <a href="mailto:aqmeyer123@gmail.com">Contact</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <h1>Tools Built for <span>Real Work</span></h1>
+    <p>Self-contained web tools that run offline, forever. No subscriptions. No accounts. Download once, own it permanently.</p>
+    <a href="store.html" class="btn">Browse Tools</a>
+  </section>
+
+  <section class="features">
+    <div class="feature">
+      <div class="icon">📚</div>
+      <h3>Study Tools</h3>
+      <p>GPA calculators, semester planners, exam prep, habit trackers.</p>
+    </div>
+    <div class="feature">
+      <div class="icon">💼</div>
+      <h3>Business Tools</h3>
+      <p>Invoice generators, expense trackers, client dashboards.</p>
+    </div>
+    <div class="feature">
+      <div class="icon">🎨</div>
+      <h3>Creative Tools</h3>
+      <p>Writing prompts, story planners, worldbuilding trackers.</p>
+    </div>
+    <div class="feature">
+      <div class="icon">🎯</div>
+      <h3>Productivity Tools</h3>
+      <p>Goal trackers, daily planners, focus timers, habit builders.</p>
+    </div>
+  </section>
+
+  <section class="perks">
+    <h2>Why ClearDesk?</h2>
+    <div class="perk-list">
+      <div class="perk"><span>⚡</span>Works offline</div>
+      <div class="perk"><span>🔒</span>No account needed</div>
+      <div class="perk"><span>♾️</span>Yours forever</div>
+      <div class="perk"><span>💾</span>Saves locally</div>
+    </div>
+  </section>
+
+  <section class="privacy" id="privacy">
+    <h2>Privacy Policy</h2>
+    <p><em>Last updated: June 2026</em></p>
+    <h3>Who We Are</h3>
+    <p>ClearDesk sells digital web tools. Our website is cleardesk2026.netlify.app.</p>
+    <h3>Information We Collect</h3>
+    <p>We do not collect personal information directly. Purchases are processed by Stripe, which operates under its own privacy policy.</p>
+    <h3>Cookies</h3>
+    <p>This website does not use cookies or tracking scripts.</p>
+    <h3>Your Data</h3>
+    <p>All data entered into ClearDesk tools is stored locally in your browser. We never see it.</p>
+    <h3>Contact</h3>
+    <p>Questions? Email <a href="mailto:aqmeyer123@gmail.com" style="color:#6c63ff;">aqmeyer123@gmail.com</a></p>
+  </section>
+
+  <footer>
+    &copy; 2026 ClearDesk. All rights reserved.
+  </footer>
+
+</body>
+</html>

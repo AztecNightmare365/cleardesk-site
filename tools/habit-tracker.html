@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Habit Tracker</title>
+    <style>
+        body {
+            background-color: #0f0f0f;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .container {
+            flex: 1;
+            max-width: 600px;
+            margin: auto;
+            background-color: #1c1c1c;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #6c63ff;
+        }
+        .habit-form, .streaks {
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-top: 5px;
+        }
+        .habits {
+            list-style-type: none;
+            padding: 0;
+        }
+        .habit-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            background-color: #282828;
+            border-radius: 4px;
+            padding: 10px;
+            width: calc(100% - 20px);
+        }
+        .habit-item input {
+            width: 30px;
+            height: 30px;
+            margin-right: 10px;
+        }
+        .streak-display {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #282828;
+            border-radius: 4px;
+            padding: 5px 10px;
+        }
+        .streak-number {
+            margin-left: 10px;
+            color: white;
+        }
+        .grid-view {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 20px;
+            justify-items: center;
+            align-items: center;
+        }
+        .day-cell {
+            background-color: #282828;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .day-cell:hover, .day-cell.active {
+            background-color: #6c63ff;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Daily Habit Tracker</h1>
+        <form class="habit-form" onsubmit="addHabit(event)">
+            <input type="text" id="newHabit" placeholder="Add a new habit...">
+            <button type="submit">Add</button>
+        </form>
+        <ul class="habits">
+            <!-- Habits will be dynamically added here -->
+        </ul>
+        <div class="streaks">
+            <h2>Streak Count per Habit</h2>
+            <!-- Streak counts for each habit will be shown here -->
+        </div>
+    </div>
+
+    <script>
+        function addHabit(event) {
+            event.preventDefault();
+            const newHabit = document.getElementById('newHabit').value.trim();
+            if (newHabit) {
+                const habitsList = document.querySelector('.habits');
+                const habitItem = document.createElement('li');
+                habitItem.className = 'habit-item';
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `habit-${newHabit}`;
+                checkbox.checked = false;
+                const label = document.createElement('label');
+                label.htmlFor = `habit-${newHabit}`;
+                label.textContent = newHabit;
+                habitItem.appendChild(checkbox);
+                habitItem.appendChild(label);
+                habitsList.appendChild(habitItem);
+
+                updateStreaks(newHabit, checkbox);
+                saveToLocalStorage();
+            }
+        }
+
+        function updateStreaks(habitName, checkbox) {
+            const streakDisplay = document.createElement('div');
+            streakDisplay.className = 'streak-display';
+            const streakNumber = document.createElement('span');
+            streakNumber.className = 'streak-number';
+            streakNumber.textContent = getStreakCount(habitName);
+            streakDisplay.appendChild(streakNumber);
+            checkbox.parentNode.insertBefore(streakDisplay, checkbox.nextSibling);
+        }
+
+        function getStreakCount(habitName) {
+            const habits = JSON.parse(localStorage.getItem('habits')) || [];
+            return habits.find(h => h.name === habitName)?.streak || 0;
+        }
+
+        function saveToLocalStorage() {
+            const habits = JSON.parse(localStorage.getItem('habits')) || [];
+            habits.forEach((habit, index) => {
+                const checkbox = document.querySelector(`input[id="habit-${habit.name}"]`);
+                if (checkbox) {
+                    habit.completedDays = Array(7).fill(false);
+                    for (let i = 0; i < 7; i++) {
+                        const dayCell = document.querySelector(`.day-cell[data-day="${i}"]`);
+                        if (dayCell) {
+                            if (habit.completedDays[i]) {
+                                dayCell.classList.add('active');
+                            } else {
+                                dayCell.classList.remove('active');
+                            }
+                        }
+                    }
+                }
+            });
+            localStorage.setItem('habits', JSON.stringify(habits));
+        }
+
+        function loadFromLocalStorage() {
+            const habits = JSON.parse(localStorage.getItem('habits')) || [];
+            habits.forEach((habit, index) => {
+                if (!document.getElementById(`habit-${habit.name}`)) {
+                    addHabit(event);
+                }
+                document.querySelector(`input[id="habit-${habit.name}"]`).checked = habit.completedDays[index];
+            });
+        }
+
+        function showGridView() {
+            const gridContainer = document.createElement('div');
+            gridContainer.className = 'grid-view';
+            for (let i = 0; i < 7; i++) {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'day-cell';
+                dayCell.dataset.day = i;
+                if (i in habits) {
+                    const checkbox = document.querySelector(`input[id="habit-${habits[i].name}"]`);
+                    dayCell.classList.toggle('active', checkbox?.checked);
+                }
+                gridContainer.appendChild(dayCell);
+            }
+            document.querySelector('.streaks').appendChild(gridContainer);
+        }
+
+        window.onload = () => {
+            loadFromLocalStorage();
+            showGridView();
+        };
+
+        function toggleDay(cell) {
+            const dayIndex = parseInt(cell.dataset.day, 10);
+            const habitName = cell.querySelector('input[type="checkbox"]').id.split('-')[1];
+            let habitsList = JSON.parse(localStorage.getItem('habits')) || [];
+            for (let i = 0; i < habitsList.length; i++) {
+                if (habitsList[i].name === habitName) {
+                    if (!habitsList[i].completedDays[dayIndex]) {
+                        habitsList[i].streak++;
+                    } else {
+                        habitsList[i].streak = Math.max(0, habitsList[i].streak - 1);
+                    }
+                    habitsList[i].completedDays[dayIndex] = !habitsList[i].completedDays[dayIndex];
+                    break;
+                }
+            }
+            localStorage.setItem('habits', JSON.stringify(habitsList));
+        }
+
+        document.querySelectorAll('.day-cell').forEach(cell => {
+            cell.addEventListener('click', () => toggleDay(cell));
+        });
+    </script>
+</body>
+</html>

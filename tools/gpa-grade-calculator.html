@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPA Calculator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #0f0f0f;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+        .container {
+            background-color: #282c34;
+            padding: 20px;
+            border-radius: 5px;
+            width: 300px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        input[type="text"], input[type="number"] {
+            padding: 8px;
+            margin: 8px 0;
+            width: calc(100% - 16px);
+            border: none;
+            border-radius: 3px;
+        }
+        button {
+            padding: 8px 12px;
+            background-color: #6c63ff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .result {
+            margin-top: 10px;
+            font-size: 1.5em;
+            color: white;
+        }
+        .gpa {
+            display: inline-block;
+            padding: 8px;
+            margin: 8px 0;
+            border-radius: 3px;
+        }
+        .green { background-color: #4caf50; }
+        .yellow { background-color: #fdd835; }
+        .red { background-color: #f44336; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GPA Calculator</h1>
+        <input type="text" id="courseName" placeholder="Course Name">
+        <input type="text" id="grade" placeholder="Grade (A/B/C/D/F)">
+        <input type="number" id="credits" placeholder="Credits">
+        <button onclick="calculateGPA()">Calculate GPA</button>
+        <div class="result" id="gpaResult"></div>
+    </div>
+
+    <script>
+        function calculateGPA() {
+            const courseName = document.getElementById('courseName').value;
+            const grade = document.getElementById('grade').value.toUpperCase();
+            const credits = parseInt(document.getElementById('credits').value);
+            if (isNaN(credits) || credits <= 0) return;
+
+            let gpaValue;
+            switch (true) {
+                case /^A$/.test(grade): gpaValue = 4.0; break;
+                case /^A\+$/i.test(grade): gpaValue = 3.7; break;
+                case /^A-$/.test(grade): gpaValue = 3.3; break;
+                case /^B\+$/i.test(grade): gpaValue = 3.0; break;
+                case /^B$/i.test(grade): gpaValue = 2.7; break;
+                case /^B-$/.test(grade): gpaValue = 2.3; break;
+                case /^C\+$/i.test(grade): gpaValue = 2.0; break;
+                case /^C$/i.test(grade): gpaValue = 1.7; break;
+                case /^C-$/.test(grade): gpaValue = 1.3; break;
+                case /^D\+$/i.test(grade): gpaValue = 1.0; break;
+                case /^D$/i.test(grade): gpaValue = 0.7; break;
+                case /^F$/.test(grade): gpaValue = 0.0; break;
+            }
+
+            const totalGPA = localStorage.getItem('totalGPA');
+            let currentTotalGPA = 0, totalCredits = 0;
+
+            if (totalGPA) {
+                const prevCourses = JSON.parse(localStorage.getItem('courses'));
+                for (const [name, grade, credit] of Object.entries(prevCourses)) {
+                    currentTotalGPA += gpaValue * credit;
+                    totalCredits += credit;
+                }
+            }
+
+            currentTotalGPA += gpaValue * credits;
+            totalCredits += credits;
+
+            const gpa = currentTotalGPA / totalCredits;
+            localStorage.setItem('totalGPA', JSON.stringify(gpa));
+            localStorage.setItem('courses', JSON.stringify({
+                ...JSON.parse(localStorage.getItem('courses') || '{}'),
+                [courseName]: {grade, credit: credits}
+            }));
+
+            document.getElementById('gpaResult').innerText = `Current GPA: ${gpa.toFixed(2)}`;
+            document.getElementById('gpaResult').classList.remove('green', 'yellow', 'red');
+            if (gpa >= 3.5) {
+                document.getElementById('gpaResult').classList.add('green');
+            } else if (gpa >= 2.5) {
+                document.getElementById('gpaResult').classList.add('yellow');
+            } else {
+                document.getElementById('gpaResult').classList.add('red');
+            }
+        }
+    </script>
+</body>
+</html>

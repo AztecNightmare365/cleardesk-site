@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Session Tracker</title>
+    <style>
+        body {
+            background-color: #0f0f0f;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #1a1a1a;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 350px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        input, button {
+            display: block;
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #6c63ff;
+            color: white;
+            font-size: 16px;
+        }
+        button {
+            cursor: pointer;
+        }
+        .log {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+        .log-item {
+            background-color: #282828;
+            color: white;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Study Session Tracker</h1>
+        </div>
+        <input type="text" id="subjectInput" placeholder="Enter subject">
+        <button onclick="startTimer()">Start Timer</button>
+        <button onclick="stopTimer()">Stop Timer</button>
+        <ul class="log"></ul>
+    </div>
+
+    <script>
+        let isRunning = false;
+        const logElement = document.querySelector('.log');
+        const localStorageKey = 'study_sessions';
+        const subjectInput = document.getElementById('subjectInput');
+
+        function startTimer() {
+            if (isRunning) return;
+
+            isRunning = true;
+            const intervalId = setInterval(() => {
+                const now = new Date();
+                logElement.innerHTML += `<li class="log-item">${now.toLocaleTimeString()} - ${document.getElementById('subjectInput').value}</li>`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (!isRunning) return;
+
+            isRunning = false;
+            clearInterval(intervalId);
+        }
+
+        function loadSessions() {
+            const sessions = JSON.parse(localStorage.getItem(localStorageKey)) || [];
+            logElement.innerHTML = '';
+            sessions.forEach(session => {
+                logElement.innerHTML += `<li class="log-item">${session.time} - ${session.subject}</li>`;
+            });
+        }
+
+        function saveSessions() {
+            const sessions = JSON.parse(localStorage.getItem(localStorageKey)) || [];
+            const newSession = { time: new Date().toLocaleTimeString(), subject: document.getElementById('subjectInput').value };
+            sessions.push(newSession);
+            localStorage.setItem(localStorageKey, JSON.stringify(sessions));
+        }
+
+        loadSessions();
+    </script>
+</body>
+</html>

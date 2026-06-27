@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title-College Budget Planner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #0f0f0f;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        h1 {
+            text-align: center;
+            color: #6c63ff;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        input[type="text"], input[type="number"] {
+            width: calc(100% - 40px);
+            padding: 10px;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+        }
+        .category-input {
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #6c63ff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .budget-item, .category-total {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #6c63ff;
+            margin-bottom: 5px;
+            color: white;
+            text-align: center;
+            line-height: 20px;
+        }
+        .remaining {
+            background-color: rgba(255, 187, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>College Budget Planner</h1>
+        <form id="budgetForm">
+            <div class="form-group category-input">
+                <label for="category">Category:</label>
+                <input type="text" id="category" name="category" required>
+            </div>
+            <div class="form-group">
+                <label for="amount">Amount ($):</label>
+                <input type="number" id="amount" name="amount" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="date">Date:</label>
+                <input type="date" id="date" name="date" required>
+            </div>
+            <button type="submit">Add Expense</button>
+        </form>
+
+        <h2>Budget Items</h2>
+        <ul id="expensesList"></ul>
+        <h2>Total Spent vs. Monthly Budget</h2>
+        <div id="budgetItems"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('budgetForm');
+            const expensesList = document.getElementById('expensesList');
+            const budgetItemsContainer = document.getElementById('budgetItems');
+
+            // Load saved data from localStorage
+            let budgets = JSON.parse(localStorage.getItem('budgets')) || {};
+            let totalSpent = 0;
+
+            function renderExpenses() {
+                expensesList.innerHTML = '';
+                for (let expense of Object.values(budgets)) {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'budget-item';
+                    itemElement.innerHTML = `
+                        <strong>${expense.category}:</strong> $${expense.amount}
+                        <br>
+                        Date: ${expense.date}
+                        <button onclick="removeExpense('${expense.id}')">Remove</button>
+                    `;
+                    expensesList.appendChild(itemElement);
+                }
+            }
+
+            function renderBudgetItems() {
+                budgetItemsContainer.innerHTML = '';
+                for (let [category, { totalSpent }] of Object.entries(budgets)) {
+                    const totalExpenses = budgets[category].amount.reduce((acc, curr) => acc + parseFloat(curr), 0);
+                    totalSpent += totalExpenses;
+
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'budget-item';
+                    itemElement.innerHTML = `
+                        <strong>${category}:</strong>
+                        <br>Spent: $${totalExpenses.toFixed(2)}
+                        <br>Budgeted: ${budgets[category].monthlyBudget}
+                        <br><div class="progress-bar" style="width: ${(totalExpenses / budgets[category].monthlyBudget * 100) > 100 ? '100%' : (totalExpenses / budgets[category].monthlyBudget * 100)}%;">
+                            <span>${(totalExpenses / budgets[category].monthlyBudget * 100).toFixed(2)}%</span>
+                        </div>
+                        <br>Remaining: $${(budgets[category].monthlyBudget - totalExpenses).toFixed(2)}
+                    `;
+                    budgetItemsContainer.appendChild(itemElement);
+                }
+            }
+
+            function addExpense() {
+                const category = document.getElementById('category').value;
+                const amount = parseFloat(document.getElementById('amount').value);
+                const date = document.getElementById('date').value;
+
+                if (!budgets[category]) {
+                    budgets[category] = { monthlyBudget: 0, amount: [] };
+                }
+                budgets[category].monthlyBudget += amount;
+                budgets[category].amount.push(amount);
+
+                localStorage.setItem('budgets', JSON.stringify(budgets));
+
+                document.getElementById('category').value = '';
+                document.getElementById('amount').value = '';
+                renderExpenses();
+                renderBudgetItems();
+
+                totalSpent += amount;
+            }
+
+            function removeExpense(id) {
+                for (let category in budgets) {
+                    const expense = budgets[category].amount.find(exp => exp.id === id);
+                    if (expense) {
+                        budgets[category].amount.splice(budgets[category].amount.indexOf(expense), 1);
+                        budgets[category].monthlyBudget -= parseFloat(expense.amount);
+
+                        localStorage.setItem('budgets', JSON.stringify(budgets));
+                        renderExpenses();
+                        renderBudgetItems();
+                        break;
+                    }
+                }
+            }
+
+            form.addEventListener('submit', (event) => {
+                event.preventDefault();
+                addExpense();
+            });
+
+            // Initialize the page
+            renderExpenses();
+            renderBudgetItems();
+        });
+    </script>
+</body>
+</html>
