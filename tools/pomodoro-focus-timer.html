@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Timer</title>
+    <style>
+        body {
+            background-color: #0f0f0f;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .timer-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #countdown {
+            font-size: 5em;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 1.2em;
+            cursor: pointer;
+        }
+        .session-count {
+            font-size: 1.5em;
+            margin-top: 30px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        audio {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="timer-container">
+        <div id="countdown">25:00</div>
+        <audio id="beep" src="https://www.soundjay.com/button/beeps-4.wav"></audio>
+        <button onclick="startSession()" id="start-btn">Start</button>
+        <button onclick="pauseSession()" id="pause-btn">Pause</button>
+        <button onclick="resetSession()">Reset</button>
+    </div>
+    <div class="session-count" id="sessions-count">Sessions: 0</div>
+
+    <script>
+        const workTime = 25 * 60; // 25 minutes in seconds
+        const shortBreak = 5 * 60; // 5 minutes in seconds
+        const longBreak = 15 * 60; // 15 minutes in seconds
+        let sessionCount = parseInt(localStorage.getItem('sessionCount')) || 0;
+        let currentSessionType = 'work';
+        let timerId;
+        let timeLeft = workTime;
+
+        function startSession() {
+            if (currentSessionType === 'work') {
+                timeLeft = workTime;
+            } else if (currentSessionType === 'short-break') {
+                timeLeft = shortBreak;
+            } else if (currentSessionType === 'long-break') {
+                timeLeft = longBreak;
+            }
+            document.getElementById('start-btn').disabled = true;
+            document.getElementById('pause-btn').disabled = false;
+
+            document.getElementById('countdown').textContent = formatTime(timeLeft);
+            document.getElementById('beep').playbackRate = 0.5; // Adjust beep speed
+            document.getElementById('beep').volume = 0.7; // Adjust beep volume
+
+            timerId = setInterval(() => {
+                timeLeft--;
+                document.getElementById('countdown').textContent = formatTime(timeLeft);
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    document.getElementById('start-btn').disabled = false;
+                    document.getElementById('pause-btn').disabled = true;
+
+                    if (currentSessionType === 'work') {
+                        currentSessionType = 'short-break';
+                        timeLeft = shortBreak;
+                        document.getElementById('countdown').textContent = formatTime(timeLeft);
+                    } else if (currentSessionType === 'short-break') {
+                        currentSessionType = 'long-break';
+                        timeLeft = longBreak;
+                        document.getElementById('countdown').textContent = formatTime(timeLeft);
+                    } else if (currentSessionType === 'long-break') {
+                        sessionCount++;
+                        localStorage.setItem('sessionCount', sessionCount);
+                        currentSessionType = 'work';
+                        timeLeft = workTime;
+                        document.getElementById('countdown').textContent = formatTime(timeLeft);
+                        document.getElementById('sessions-count').textContent = `Sessions: ${sessionCount}`;
+                    }
+
+                    document.getElementById('beep').currentTime = 0; // Reset beep
+                    document.getElementById('beep').play().then(() => {
+                        document.getElementById('start-btn').disabled = false;
+                        document.getElementById('pause-btn').disabled = true;
+                    });
+                }
+            }, 1000);
+        }
+
+        function pauseSession() {
+            clearInterval(timerId);
+            document.getElementById('start-btn').disabled = false;
+            document.getElementById('pause-btn').disabled = true;
+        }
+
+        function resetSession() {
+            clearInterval(timerId);
+            timeLeft = workTime;
+            document.getElementById('countdown').textContent = formatTime(timeLeft);
+            document.getElementById('start-btn').disabled = false;
+            document.getElementById('pause-btn').disabled = true;
+            currentSessionType = 'work';
+            sessionCount = 0;
+            localStorage.removeItem('sessionCount');
+        }
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+        }
+    </script>
+</body>
+</html>
